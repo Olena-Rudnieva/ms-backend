@@ -2,6 +2,11 @@ import { HttpError } from '../helpers/index.js';
 import { ctrlWrapper } from '../decorators/index.js';
 import Contact from '../models/Contact.js';
 import fetch from 'node-fetch';
+import 'dotenv/config';
+
+const { TOKEN, CHATID } = process.env;
+
+console.log('env', process.env);
 
 const getAll = async (req, res) => {
   const result = await Contact.find();
@@ -18,15 +23,13 @@ const getById = async (req, res) => {
 };
 
 const sendTelegramMessage = async (message) => {
-  const token = '7136826233:AAEdErmG_xV-YtZNwtfdmECROjw_Anf34B0';
-  const chatId = '847194168';
-  const url = `https://api.telegram.org/bot${token}/sendMessage`;
+  const url = `https://api.telegram.org/bot${TOKEN}/sendMessage`;
 
   const response = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      chat_id: chatId,
+      chat_id: CHATID,
       text: message,
     }),
   });
@@ -49,6 +52,9 @@ const add = async (req, res) => {
     await sendTelegramMessage(message);
   } catch (error) {
     console.error('Failed to send message to Telegram:', error);
+    console.error('Failed to send message to Telegram:', error.message);
+    console.error('Response status:', error.response?.status);
+    console.error('Response body:', await error.response?.text());
   }
 };
 
